@@ -87,31 +87,53 @@ svg.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-wid
 
 .main { min-width: 0; display: flex; flex-direction: column; }
 .field { position: relative; padding: 15px 6px 13px 12px; font-family: var(--math); font-size: 21px; line-height: 1.35; min-height: 30px; }
-.src { display: block; width: 100%; box-sizing: border-box; border: 0; padding: 0; margin: 0; background: transparent; color: var(--ink); font: inherit; letter-spacing: .01em; outline: none; caret-color: var(--accent); }
-.row:not(.editing) .src { position: absolute; inset: 0; width: 100%; height: 100%; padding: 15px 6px 13px 12px; color: transparent; caret-color: transparent; background: transparent; }
+.src { position: absolute; inset: 0; width: 100%; height: 100%; box-sizing: border-box; border: 0; margin: 0; padding: 15px 6px 13px 12px; background: transparent;
+  color: transparent; caret-color: transparent; font: inherit; outline: none; opacity: 0; }
+.row.editing .src { pointer-events: none; }
 .row.editing .pretty { display: none; }
-.row:not(.editing) .src::placeholder { color: transparent; }
+.live { display: none; min-height: 28px; overflow-wrap: anywhere; cursor: text; color: var(--ink); user-select: none; -webkit-user-select: none; }
+.row.editing .live { display: block; }
+.mv .c.v { font-style: italic; }
+.mv .c.op { margin: 0 .22em; }
+.mv .c.rel { margin: 0 .32em; }
+.mv .c.cm { margin-right: .22em; }
+.mv .c.sl2 { margin: 0 .06em; }
+.mv .fw { margin-right: 1px; }
+.mv .sl { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.mv .caret { display: inline-block; width: 0; height: 1.15em; border-left: 2px solid var(--accent); margin-right: -2px; vertical-align: -.22em; animation: blink 1.06s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.mv .bx { border-radius: 3px; padding: 0 .05em; }
+.mv .bx.em { display: inline-block; min-width: .55em; height: .8em; border: 1.2px dashed color-mix(in srgb, var(--ink2) 70%, transparent); vertical-align: .55em; line-height: 0; box-sizing: border-box; }
+.mv sub.bx.em { vertical-align: -.35em; }
+.mv .bx:has(.caret) { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.mv sup .caret, .mv sub .caret { height: .95em; vertical-align: -.12em; }
+.mv .bx.em .caret { height: .7em; vertical-align: 0; margin-left: .2em; }
 .pretty { min-height: 28px; overflow-wrap: anywhere; color: var(--ink); }
 .pretty:empty::before { content: attr(data-ph); color: var(--ink2); opacity: .6; font-family: var(--ui); font-size: 15px; }
-.pretty i { font-style: italic; }
-.pretty .mf { font-style: normal; margin-right: 1px; }
-.pretty .mg { font-style: italic; }
-.pretty .mo { margin: 0 .22em; }
-.pretty .mo.u { margin: 0 .05em 0 0; }
-.pretty .mo.rel { margin: 0 .32em; }
-.pretty sup { font-size: .68em; vertical-align: .62em; line-height: 0; }
-.pretty sub { font-size: .66em; vertical-align: -.25em; line-height: 0; }
-.pretty .fr { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; margin: 0 .12em; font-size: .9em; }
-.pretty .fr > .fn { padding: 0 .15em .06em; border-bottom: 1.5px solid currentColor; }
-.pretty .fr > .fd { padding: .06em .15em 0; }
-.pretty .rad { display: inline-flex; align-items: stretch; }
-.pretty .rs { margin-right: -1px; }
-.pretty .ri { border-top: 1.5px solid currentColor; padding: 0 .12em; margin-top: .14em; }
-.pretty .big { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin-right: .15em; }
-.pretty .bs { font-size: 1.35em; line-height: 1; }
-.pretty .bh, .pretty .bl { font-size: .6em; }
-.pretty .br { font-size: 1.15em; }
-.pretty .raw { font-family: var(--ui); font-size: 16px; color: var(--ink); }
+.mv i { font-style: italic; }
+.mv .mf { font-style: normal; margin-right: 1px; }
+.mv .mg { font-style: italic; }
+.mv .mo { margin: 0 .22em; }
+.mv .mo.u { margin: 0 .05em 0 0; }
+.mv .mo.rel { margin: 0 .32em; }
+.mv sup { font-size: .68em; vertical-align: .62em; line-height: 0; }
+.mv sub { font-size: .66em; vertical-align: -.25em; line-height: 0; }
+.mv .fr { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; margin: 0 .12em; font-size: .9em; }
+.mv .fr > .fn { padding: 0 .15em .06em; border-bottom: 1.5px solid currentColor; }
+.mv .fr > .fd { padding: .06em .15em 0; }
+.mv .rad { display: inline-block; position: relative; margin: 0 .06em; padding-left: .6em; }
+.mv .rad > .rs { position: absolute; left: 0; top: 0; bottom: 0; width: .62em; height: 100%; overflow: visible; display: block; }
+.mv .rs path { fill: none; stroke: currentColor; stroke-width: 1.5px; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+.mv .ri { display: inline-block; border-top: 1.5px solid currentColor; padding: .1em .12em 0 .08em; }
+.mv .ri.em { min-width: .7em; }
+.mv .ri.em:not(:has(.caret))::after { content: ""; display: inline-block; width: .5em; height: .8em; border: 1.2px dashed color-mix(in srgb, var(--ink2) 70%, transparent); border-radius: 2px; vertical-align: -.1em; }
+.mv .ri:has(.caret) { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.mv .rad.cube::before { content: "3"; position: absolute; left: 0; top: .05em; font-size: .5em; }
+.mv .big { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin-right: .15em; }
+.mv .bs { font-size: 1.35em; line-height: 1; }
+.mv .bh, .pretty .bl { font-size: .6em; }
+.mv .br { font-size: 1.15em; }
+.mv .raw { font-family: var(--ui); font-size: 16px; color: var(--ink); }
 
 .ext { display: flex; flex-direction: column; gap: 6px; padding: 0 10px 10px 12px; font-size: 14px; }
 .ext:empty { display: none; }
@@ -173,8 +195,8 @@ input[type=range].rng { width: 100%; margin: 0; accent-color: var(--accent); hei
 .key sub { font-size: .6em; vertical-align: -.3em; line-height: 0; }
 .key i { font-style: italic; }
 .key > span { display: inline-block; white-space: nowrap; }
-.pretty .pr { margin-left: .1em; }
-.pretty .ts { display: inline-block; width: .17em; }
+.mv .pr { margin-left: .1em; }
+.mv .ts { display: inline-block; width: .17em; }
 .key svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .kpage.func .key { height: 36px; font-size: 16px; }
 .kpage.abc .key { font-family: var(--ui); font-size: 18px; }
@@ -240,7 +262,7 @@ textarea.code { width: 100%; box-sizing: border-box; min-height: 80px; border: 1
   #grip { display: none; }
   #phead { padding-top: 10px; }
 }
-@media (prefers-reduced-motion: reduce) { .drawer, #toast, .tog .knob, .tog .knob::after { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .mv .caret { animation: none; } .drawer, #toast, .tog .knob, .tog .knob::after { transition: none; } }
 .row.picked:not(.editing) { background: color-mix(in srgb, var(--focus) 60%, var(--raise)); }
 
 </style>
@@ -1524,8 +1546,8 @@ function H(n) {
       break;
     case 'call': {
       const a = n.args.map(H).join(', ');
-      if (n.name === 'sqrt' && !n.pw) return `<span class="rad"><span class="rs">√</span><span class="ri">${H(strip(n.args[0]))}</span></span>`;
-      if (n.name === 'cbrt' && !n.pw) return `<span class="rad"><span class="rs">∛</span><span class="ri">${H(strip(n.args[0]))}</span></span>`;
+      if (n.name === 'sqrt' && !n.pw) return `<span class="rad"><span class="ri">${H(strip(n.args[0]))}</span><svg class="rs" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0.6 62 L2.8 55 L5.4 97 L9.3 1.2 L10 1.2"/></svg></span>`;
+      if (n.name === 'cbrt' && !n.pw) return `<span class="rad cube"><span class="ri">${H(strip(n.args[0]))}</span><svg class="rs" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0.6 62 L2.8 55 L5.4 97 L9.3 1.2 L10 1.2"/></svg></span>`;
       if (n.name === 'abs' && !n.pw) return `|${a}|`;
       if (n.name === 'floor') return `⌊${a}⌋`;
       if (n.name === 'ceil') return `⌈${a}⌉`;
@@ -1562,6 +1584,150 @@ function stmtHTML(src) {
 const api = { MathError, parse, parseCached, tokenize, analyze, stmtHTML, fmtNum, disp, nameHTML, FNAMES, isNum };
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 else root.LatticeMath = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* Live editor rendering: turns the raw text of the line being edited into math with a caret.
+   ^( … ) becomes an exponent box, √( … ) a radical that stretches over its contents.
+   Returns html plus caret bookkeeping (positions to skip, hidden closing parens). */
+(function (root) {
+'use strict';
+const LETTER = /[A-Za-zͰ-Ͽ]/;
+const FN = ['arcsinh', 'arccosh', 'arctanh', 'arcsin', 'arccos', 'arctan', 'arcsec', 'arccsc', 'arccot', 'nthroot', 'median', 'stdevp',
+  'length', 'stdev', 'total', 'floor', 'round', 'asinh', 'acosh', 'atanh', 'sinh', 'cosh', 'tanh', 'sech', 'csch', 'coth', 'asin', 'acos',
+  'atan', 'sign', 'ceil', 'mean', 'sort', 'prod', 'sin', 'cos', 'tan', 'sec', 'csc', 'cot', 'log', 'exp', 'abs', 'sgn', 'mod', 'nCr', 'nPr',
+  'gcd', 'lcm', 'min', 'max', 'sum', 'int', 'ln'];
+const RAD_SVG = '<svg class="rs" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0.6 62 L2.8 55 L5.4 97 L9.3 1.2 L10 1.2"/></svg>';
+const esc = c => c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '&' ? '&amp;' : c;
+const CLOSE = { '(': ')', '[': ']', '{': '}' };
+
+function render(s, cs, ce) {
+  const n = s.length, dead = new Set(), boxClose = new Set();
+  let i = 0, caretDone = false;
+  const caretAt = k => (!caretDone && cs === ce && cs === k) ? (caretDone = true, '<span class="caret"></span>') : '';
+  const sl = k => (cs !== ce && k >= cs && k < ce) ? ' sl' : '';
+  const C = (k, html, cls) => caretAt(k) + `<span class="c${cls ? ' ' + cls : ''}${sl(k)}" data-i="${k}">${html}</span>`;
+  const Hd = k => caretAt(k) + `<span class="h" data-i="${k}"></span>`;
+
+  function seq(stop) {
+    let out = '';
+    while (i < n) { if (stop && s[i] === stop) return out; out += item(); }
+    return out;
+  }
+  function boxBody(stop) {
+    const inner = seq(stop);
+    let tail;
+    if (s[i] === stop) { boxClose.add(i); tail = Hd(i); i++; }
+    else tail = i >= n ? caretAt(n) : '';
+    return { inner, tail, empty: !inner };
+  }
+  function letter() {
+    const k = i;
+    let out = C(k, esc(s[k]), 'v'); i++;
+    if (s[i] === '_') {
+      const u = i; i++;
+      let sub = '', chars = 0;
+      if (s[i] === '{') {
+        const o = i; i++; dead.add(o);
+        while (i < n && s[i] !== '}') { sub += C(i, esc(s[i])); i++; chars++; }
+        sub = Hd(o) + sub;
+        if (s[i] === '}') { sub += Hd(i); i++; } else sub += caretAt(n);
+      } else {
+        while (i < n && /[A-Za-z0-9]/.test(s[i])) { sub += C(i, esc(s[i])); i++; chars++; }
+        if (i >= n) sub += caretAt(n);
+      }
+      return out + Hd(u) + `<sub${chars ? '' : ' class="bx em"'}>${sub}</sub>`;
+    }
+    if (/[0-9]/.test(s[i] || '')) {
+      let sub = '';
+      while (i < n && /[0-9]/.test(s[i])) { sub += C(i, s[i]); i++; }
+      return out + `<sub>${sub}</sub>`;
+    }
+    return out;
+  }
+  function item() {
+    const k = i, c = s[i];
+    if (c === '^') {
+      i++;
+      if (s[i] === '(') {
+        const o = i; i++; dead.add(k + 1);
+        const b = boxBody(')');
+        return Hd(k) + Hd(o) + `<sup class="bx${b.empty ? ' em' : ''}">${b.inner}${b.tail}</sup>`;
+      }
+      let tok = '';
+      if (s[i] === '-') { tok += C(i, '−'); i++; }
+      if (i < n && /[0-9.]/.test(s[i])) { while (i < n && /[0-9.]/.test(s[i])) { tok += C(i, s[i]); i++; } }
+      else if (i < n && LETTER.test(s[i])) tok += letter();
+      if (!tok) return Hd(k) + `<sup class="bx em">${caretAt(k + 1)}</sup>`;
+      return Hd(k) + `<sup>${tok}</sup>`;
+    }
+    const rm = /^(√|sqrt|∛|cbrt)\(/.exec(s.slice(i, i + 5));
+    if (rm) {
+      const L = rm[1].length, cube = rm[1] === '∛' || rm[1] === 'cbrt';
+      let pre = '';
+      for (let j = 0; j < L; j++) { pre += Hd(k + j); if (j) dead.add(k + j); }
+      dead.add(k + L);
+      i += L; const o = i; i++;
+      const b = boxBody(')');
+      return pre + Hd(o) + `<span class="rad${cube ? ' cube' : ''}"><span class="ri${b.empty ? ' em' : ''}">${b.inner}${b.tail}</span>${RAD_SVG}</span>`;
+    }
+    if (s.startsWith('<=', i) || s.startsWith('>=', i)) { i += 2; dead.add(k + 1); return C(k, c === '<' ? '≤' : '≥', 'rel') + Hd(k + 1); }
+    if (s.startsWith('d/d', i) && LETTER.test(s[i + 3] || '')) {
+      let out = '';
+      for (let j = 0; j < 4; j++) { out += C(k + j, s[k + j], j === 3 ? 'v' : 'f'); if (j) dead.add(k + j); }
+      i += 4; return out;
+    }
+    if (LETTER.test(c)) {
+      for (const f of FN) if (s.startsWith(f, i)) {
+        let out = '';
+        for (let j = 0; j < f.length; j++) { out += C(k + j, s[k + j], 'f'); if (j) dead.add(k + j); }
+        i += f.length;
+        out = `<span class="fw">${out}</span>`;
+        if (f === 'log' && s[i] === '_') {
+          const u = i; i++; let sub = '';
+          while (i < n && /[A-Za-z0-9]/.test(s[i])) { sub += C(i, s[i]); i++; }
+          if (i >= n) sub += caretAt(n);
+          out += Hd(u) + `<sub${sub ? '' : ' class="bx em"'}>${sub}</sub>`;
+        }
+        return out;
+      }
+      return letter();
+    }
+    if (CLOSE[c]) {
+      const cl = CLOSE[c]; i++;
+      let out = C(k, c, 'pa') + seq(cl);
+      if (s[i] === cl) { out += C(i, cl, 'pa'); i++; }
+      return out;
+    }
+    i++;
+    if (c === '+') return C(k, '+', 'op');
+    if (c === '-' || c === '−') return C(k, '−', 'op');
+    if (c === '*' || c === '·' || c === '×') return C(k, '·', 'op');
+    if (c === '/' || c === '÷') return C(k, '/', 'sl2');
+    if ('=<>≤≥~'.includes(c)) return C(k, esc(c), 'rel');
+    if (c === ':') return C(k, ':', 'op');
+    if (c === ',') return C(k, ',', 'cm');
+    if (c === ' ') return C(k, ' ', 'sp');
+    return C(k, esc(c), /[0-9.]/.test(c) ? 'n' : '');
+  }
+
+  let html = seq(null);
+  html += caretAt(n);
+  return { html, dead, boxClose };
+}
+
+function matchClose(s, o) {
+  let d = 0;
+  for (let j = o; j < s.length; j++) {
+    const c = s[j];
+    if (c === '(' || c === '[' || c === '{') d++;
+    else if (c === ')' || c === ']' || c === '}') { d--; if (d === 0) return j; }
+  }
+  return -1;
+}
+
+const api = { render, matchClose, RAD_SVG, FN };
+if (typeof module !== 'undefined' && module.exports) module.exports = api;
+else root.LatticeLive = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
@@ -2518,13 +2684,14 @@ function insertItem(it, afterId) {
 }
 function deleteItem(id, focusPrev) {
   const i = G.items.findIndex(x => x.id === id); if (i < 0) return;
-  const prev = G.items[i - 1];
+  const prev = focusPrev === 'next' ? null : G.items[i - 1];
   G.items.splice(i, 1);
   const r = rows.get(id); if (r) r.el.remove();
   rows.delete(id); playing.delete(id);
   if (sel === id) { sel = null; trace = null; pins = []; }
   ensureTrailing(); renumber(); reanalyze(); commit();
-  if (focusPrev && prev) focusItem(prev.id, true);
+  if (focusPrev === 'next') { const nx = G.items[Math.min(i, G.items.length - 1)]; if (nx) focusItem(nx.id, true); }
+  else if (focusPrev && prev) focusItem(prev.id, true);
   else if (focusPrev) { const f = G.items[0]; if (f) focusItem(f.id, true); }
 }
 function focusItem(id, end) {
@@ -2538,6 +2705,12 @@ function kbdMode(el) { el.setAttribute('inputmode', kbdOn() ? 'none' : 'text'); 
 function wireMath(el, r) {
   el.setAttribute('autocomplete', 'off'); el.setAttribute('autocapitalize', 'off'); el.setAttribute('autocorrect', 'off'); el.setAttribute('spellcheck', 'false');
   el.dataset.math = '1'; kbdMode(el);
+  el.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !e.shiftKey) { e.preventDefault(); moveCaret(el, e.key === 'ArrowLeft' ? -1 : 1); return; }
+    if (e.key === 'Backspace' && el.value && smartBackspace(el)) { e.preventDefault(); return; }
+    if (e.key.length === 1 && typeChar(el, e.key)) e.preventDefault();
+  });
   el.addEventListener('focus', () => { activeInput = el; if (r) { r.el.classList.add('editing'); } showKbd(); });
   el.addEventListener('blur', () => {
     setTimeout(() => {
@@ -2563,15 +2736,16 @@ function makeRow(it) {
   if (it.type === 'table') return makeTableRow(it);
   const el = h('div', { class: 'row expr' });
   el.innerHTML = `<div class="gut"><span class="idx"></span><button class="sw" aria-label="Show or hide on graph" hidden></button></div>
-    <div class="main"><div class="field"><div class="pretty" data-ph=""></div><input class="src" aria-label="Expression"></div><div class="ext"></div></div>
+    <div class="main"><div class="field"><div class="pretty mv" data-ph=""></div><div class="live mv" aria-hidden="true"></div><input class="src" aria-label="Expression"></div><div class="ext"></div></div>
     <div class="acts"><button class="bst" aria-label="Color and style">${ICON.style}</button><button class="bdel" aria-label="Delete">${ICON.del}</button></div>`;
-  const r = { it, el, src: $('.src', el), pretty: $('.pretty', el), ext: $('.ext', el), sw: $('.sw', el), idx: $('.idx', el), sig: null, ptext: null, lastInput: 0 };
+  const r = { it, el, src: $('.src', el), pretty: $('.pretty', el), live: $('.live', el), ext: $('.ext', el), sw: $('.sw', el), idx: $('.idx', el), sig: null, ptext: null, lastInput: 0 };
   r.src.value = it.text;
   wireMath(r.src, r);
   r.src.addEventListener('focus', () => {
     selectItem(it.id, false);
     const n = r.src.value.length;
-    if (!r.focusedOnce || r.wasPretty) { setTimeout(() => { try { r.src.setSelectionRange(n, n); r.src.scrollLeft = r.src.scrollWidth; } catch (e) { /* ignore */ } }, 0); }
+    if (!r.focusedOnce || r.wasPretty) { setTimeout(() => { try { r.src.setSelectionRange(n, n); } catch (e) { /* ignore */ } renderLive(r); }, 0); }
+    renderLive(r);
     r.focusedOnce = true;
     setTimeout(() => r.el.scrollIntoView({ block: 'nearest' }), 60);
     schedule();
@@ -2581,15 +2755,26 @@ function makeRow(it) {
     autoReplace(r.src);
     it.text = r.src.value; r.lastInput = Date.now();
     if (it === G.items[G.items.length - 1] && it.text.trim()) ensureTrailing();
+    renderLive(r);
     reanalyzeSoon(); commitSoon();
   });
   r.src.addEventListener('keydown', e => onRowKey(e, it, r));
+  r.src._onCaret = () => renderLive(r);
+  ['keyup', 'select'].forEach(ev => r.src.addEventListener(ev, () => renderLive(r)));
+  r.src.addEventListener('blur', () => setTimeout(() => renderLive(r), 0));
+  r.live.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    const idx = liveIndexAt(r, e.clientX, e.clientY);
+    if (document.activeElement !== r.src) r.src.focus({ preventScroll: true });
+    try { r.src.setSelectionRange(idx, idx); } catch (er) { /* ignore */ }
+    renderLive(r);
+  });
   r.sw.addEventListener('click', () => { if (r.longFired) { r.longFired = false; return; } it.hidden = !it.hidden; buildDraws(); updateRow(r); schedule(); commit(); });
   longPress(r.sw, () => { r.longFired = true; stylePop(r.sw, it); });
   $('.bst', el).addEventListener('pointerdown', e => e.preventDefault());
   $('.bst', el).addEventListener('click', e => stylePop(e.currentTarget, it));
   $('.bdel', el).addEventListener('pointerdown', e => e.preventDefault());
-  $('.bdel', el).addEventListener('click', () => deleteItem(it.id, false));
+  $('.bdel', el).addEventListener('click', () => deleteItem(it.id, r.el.contains(document.activeElement) ? 'next' : false));
   return r;
 }
 function longPress(el, fn) {
@@ -2937,8 +3122,8 @@ const PAGES = {
   func: [
     ['sin', 'cos', 'tan', 'csc', 'sec', 'cot', 'ln'].map(f => K(f, f + '(', { c: 'sm' })),
     [K('sin<sup>−1</sup>', 'arcsin(', { c: 'sm' }), K('cos<sup>−1</sup>', 'arccos(', { c: 'sm' }), K('tan<sup>−1</sup>', 'arctan(', { c: 'sm' }), K('sinh', 'sinh(', { c: 'sm' }), K('cosh', 'cosh(', { c: 'sm' }), K('tanh', 'tanh(', { c: 'sm' }), K('log', 'log(', { c: 'sm' })],
-    [K('<span style="font-size:.8em">d/d<i>x</i></span>', 'd/dx(', { c: 'sm' }), K('<i>f</i>′', "'", { c: 'sm' }), K('∫', '∫(t=0, x, '), K('Σ', 'Σ(n=1, 10, '), K('∏', '∏(n=1, 10, '), K('<i>x</i>!', '!', { c: 'sm' }), K('log<sub><i>a</i></sub>', 'log_', { c: 'sm' })],
-    [K('|<i>a</i>|', '||', { back: 1, c: 'sm' }), K('⌊<i>a</i>⌋', 'floor(', { c: 'sm' }), K('⌈<i>a</i>⌉', 'ceil(', { c: 'sm' }), K('round', 'round(', { c: 'sm ui' }), K('mod', 'mod(', { c: 'sm ui' }), K('<sup><i>n</i></sup>√', 'nthroot(', { c: 'sm' }), K('<i>e</i><sup><i>x</i></sup>', 'e^', { c: 'sm' })],
+    [K('<span style="font-size:.8em">d/d<i>x</i></span>', 'd/dx(', { c: 'sm' }), K('<i>f</i>′', "'", { c: 'sm' }), K('∫', '∫(t=0, x, )', { back: 1 }), K('Σ', 'Σ(n=1, 10, )', { back: 1 }), K('∏', '∏(n=1, 10, )', { back: 1 }), K('<i>x</i>!', '!', { c: 'sm' }), K('log<sub><i>a</i></sub>', 'log_', { c: 'sm' })],
+    [K('|<i>a</i>|', '||', { back: 1, c: 'sm' }), K('⌊<i>a</i>⌋', 'floor(', { c: 'sm' }), K('⌈<i>a</i>⌉', 'ceil(', { c: 'sm' }), K('round', 'round(', { c: 'sm ui' }), K('mod', 'mod(', { c: 'sm ui' }), K('<sup><i>n</i></sup>√', 'nthroot(', { c: 'sm' }), K('<i>e</i><sup><i>x</i></sup>', 'e^()', { c: 'sm', back: 1 })],
     ['min', 'max', 'mean', 'total', 'length', 'nCr', 'nPr'].map(f => K(f, f + '(', { c: 'sm ui' })),
     [K('{', '{'), K('}', '}'), K('[', '['), K(']', ']'), K(':', ':'), K('~', '~'), K('…', '...')],
     'nav',
@@ -2986,6 +3171,84 @@ function insertText(el, txt, back) {
   el.dispatchEvent(new Event('input', { bubbles: true }));
   keepCaretVisible(el);
 }
+const LL = window.LatticeLive;
+const OPENERS = { '(': ')', '[': ']', '{': '}' };
+const BS_PREFIX = new RegExp('(?:' + LL.FN.join('|') + '|sqrt|cbrt|d/d[A-Za-z]|log_[A-Za-z0-9]+|√|∛|∫|Σ|∏|\\^)$');
+function caretMoved(el) { if (el._onCaret) el._onCaret(); keepCaretVisible(el); }
+function typeChar(el, c) {
+  const s = el.selectionStart ?? el.value.length, e = el.selectionEnd ?? s, v = el.value;
+  if (OPENERS[c]) {
+    const mid = v.slice(s, e);
+    el.setRangeText(c + mid + OPENERS[c], s, e, 'end');
+    const p = s + 1 + mid.length; el.setSelectionRange(p, p);
+    el.dispatchEvent(new Event('input', { bubbles: true })); return true;
+  }
+  if (c === ')' || c === ']' || c === '}') {
+    if (s === e && v[s] === c) { el.setSelectionRange(s + 1, s + 1); caretMoved(el); return true; }
+    return false;
+  }
+  if (c === '^') {
+    const mid = v.slice(s, e);
+    el.setRangeText('^(' + mid + ')', s, e, 'end');
+    const p = s + 2 + mid.length; el.setSelectionRange(p, p);
+    el.dispatchEvent(new Event('input', { bubbles: true })); return true;
+  }
+  return false;
+}
+function moveCaret(el, dir) {
+  const v = el.value, info = LL.render(v, -1, -1);
+  let s = el.selectionStart ?? 0, e = el.selectionEnd ?? s, p;
+  if (s !== e) p = dir < 0 ? s : e;
+  else { p = clamp(s + dir, 0, v.length); while (p > 0 && p < v.length && info.dead.has(p)) p += dir; }
+  el.setSelectionRange(p, p); caretMoved(el);
+}
+function smartBackspace(el) {
+  const v = el.value, s = el.selectionStart ?? v.length, e = el.selectionEnd ?? s;
+  const done = () => { el.dispatchEvent(new Event('input', { bubbles: true })); return true; };
+  if (s !== e) { el.setRangeText('', s, e, 'end'); return done(); }
+  if (s === 0) return true;
+  const info = LL.render(v, -1, -1), prev = v[s - 1];
+  if (info.boxClose.has(s - 1) || ')]}'.includes(prev)) { el.setSelectionRange(s - 1, s - 1); caretMoved(el); return true; }
+  if (OPENERS[prev]) {
+    let start = s - 1;
+    if (prev === '(') { const m = v.slice(0, start).match(BS_PREFIX); if (m) start -= m[0].length; }
+    const close = LL.matchClose(v, s - 1);
+    if (close < 0) el.setRangeText('', start, s, 'end');
+    else if (close === s) el.setRangeText('', start, s + 1, 'end');
+    else { el.value = v.slice(0, start) + v.slice(s, close) + v.slice(close + 1); el.setSelectionRange(start, start); }
+    return done();
+  }
+  let k = s - 1;
+  while (k > 0 && info.dead.has(k)) k--;
+  if ((v[s - 1] === '=' && (v[s - 2] === '<' || v[s - 2] === '>'))) k = s - 2;
+  el.setRangeText('', k, s, 'end');
+  return done();
+}
+function renderLive(r) {
+  if (!r.live) return;
+  const el = r.src, f = document.activeElement === el;
+  const res = LL.render(el.value, f ? el.selectionStart : -1, f ? el.selectionEnd : -1);
+  r.live.innerHTML = res.html;
+}
+function liveIndexAt(r, x, y) {
+  const spans = $$('[data-i]', r.live);
+  if (!spans.length) return r.src.value.length;
+  let best = null, bd = Infinity;
+  for (const sp of spans) {
+    const b = sp.getBoundingClientRect();
+    if (!b.width && sp.classList.contains('h')) continue;
+    const dy = y < b.top ? b.top - y : y > b.bottom ? y - b.bottom : 0;
+    const dx = x < b.left ? b.left - x : x > b.right ? x - b.right : 0;
+    const d = dy * 3 + dx;
+    if (d < bd) { bd = d; best = { sp, b }; }
+  }
+  if (!best) return r.src.value.length;
+  let idx = +best.sp.dataset.i + (x > best.b.left + best.b.width / 2 ? 1 : 0);
+  const info = LL.render(r.src.value, -1, -1);
+  while (idx < r.src.value.length && info.dead.has(idx)) idx++;
+  return idx;
+}
+document.addEventListener('selectionchange', () => { const a = document.activeElement; if (a && a._onCaret) a._onCaret(); });
 function keepCaretVisible(el) {
   if (el.selectionStart >= el.value.length - 1) el.scrollLeft = el.scrollWidth;
 }
@@ -2993,24 +3256,19 @@ function pressKey(k) {
   if (k.page) { page = k.page; renderKbd(); return; }
   const el = activeInput;
   if (!el || document.activeElement !== el) { if (el) el.focus({ preventScroll: true }); else return; }
-  if (k.cmd === 'left' || k.cmd === 'right') {
-    const p = clamp((el.selectionStart ?? 0) + (k.cmd === 'left' ? -1 : 1), 0, el.value.length);
-    el.setSelectionRange(p, p); keepCaretVisible(el); return;
-  }
+  if (k.cmd === 'left' || k.cmd === 'right') { moveCaret(el, k.cmd === 'left' ? -1 : 1); return; }
   if (k.cmd === 'enter') { el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })); return; }
   if (k.cmd === 'bksp') {
-    const s = el.selectionStart ?? 0, e = el.selectionEnd ?? s;
-    if (s !== e) { el.setRangeText('', s, e, 'end'); }
-    else if (s === 0) { if (!el.value) el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true })); return; }
-    else {
-      const m = el.value.slice(0, s).match(SMART);
-      const n = m ? m[0].length : 1;
-      el.setRangeText('', s - n, s, 'end');
-    }
-    el.dispatchEvent(new Event('input', { bubbles: true }));
+    if (!el.value) { el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true })); return; }
+    smartBackspace(el);
     return;
   }
-  if (k.a != null) insertText(el, k.a, k.back);
+  if (k.a != null) {
+    if (k.a.length === 1 && typeChar(el, k.a)) return;
+    let t = k.a, back = k.back || 0;
+    if (t.endsWith('(')) { t += ')'; back += 1; }
+    insertText(el, t, back);
+  }
 }
 let repT = 0, repI = 0;
 const stopRep = () => { clearTimeout(repT); clearInterval(repI); $$('.key.down', kbdEl).forEach(b => b.classList.remove('down')); };
