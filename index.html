@@ -255,6 +255,15 @@ textarea.code { width: 100%; box-sizing: border-box; min-height: 80px; border: 1
 #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 500;
   opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 40; max-width: calc(100vw - 48px); text-align: center; }
 #toast.on { opacity: 1; transform: translate(-50%, 0); }
+#toast.act.on { pointer-events: auto; display: flex; align-items: center; gap: 14px; }
+.tact { color: var(--paper); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: 4px 2px; }
+.grow { display: flex; align-items: center; gap: 4px; }
+.grow .gitem { flex: 1; min-width: 0; }
+.gdel { width: 40px; height: 40px; flex: none; border-radius: 10px; display: grid; place-items: center; color: var(--ink2); }
+.gdel:hover, .gdel:active { color: var(--danger); background: var(--key2); }
+.mv .fr > .em { min-width: .6em; min-height: .8em; }
+.mv .fr > .em:not(:has(.caret))::after { content: ""; display: inline-block; width: .5em; height: .75em; border: 1.2px dashed color-mix(in srgb, var(--ink2) 70%, transparent); border-radius: 2px; vertical-align: -.1em; }
+.mv .fr > :has(.caret) { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 3px; }
 
 @media (min-width: 760px) and (min-aspect-ratio: 1/1) {
   #app { grid-template-columns: 380px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "panel stage" "kbd stage"; }
@@ -310,7 +319,7 @@ textarea.code { width: 100%; box-sizing: border-box; min-height: 80px; border: 1
       <button class="btn" id="bDup">Duplicate</button>
       <button class="btn warn" id="bDel">Delete</button>
     </div>
-    <div class="sec">Saved on this phone</div>
+    <div class="sec">Saved</div>
     <div id="gList"></div>
     <div class="sec">Examples</div>
     <div id="exList"></div>
@@ -346,6 +355,7 @@ textarea.code { width: 100%; box-sizing: border-box; min-height: 80px; border: 1
     <div class="row2"><button class="btn" id="bImport">Open pasted code</button></div>
     <div class="row2"><button class="btn pri full" id="bInstall" hidden>Install Domos on this phone</button></div>
     <p class="note">Graphs are saved in this browser only. Tap a curve to trace it and see its intercepts. Long-press a color dot to change color or line style.</p>
+    <p class="note" id="verNote"></p>
   </div>
 </aside>
 
@@ -1610,8 +1620,24 @@ function render(s, cs, ce) {
 
   function seq(stop) {
     let out = '';
-    while (i < n) { if (stop && s[i] === stop) return out; out += item(); }
+    while (i < n) {
+      if (stop && s[i] === stop) return out;
+      if (s[i] === '(') {
+        const c1 = matchClose(s, i);
+        if (c1 > 0 && s[c1 + 1] === '/' && s[c1 + 2] === '(') { out += frac(); continue; }
+      }
+      out += item();
+    }
     return out;
+  }
+  function frac() {
+    const o1 = i; i++;
+    const num = boxBody(')');
+    const sl = i; i++; const o2 = i; i++;
+    dead.add(sl); dead.add(o2);
+    const den = boxBody(')');
+    return Hd(o1) + `<span class="fr"><span class="fn${num.empty ? ' em' : ''}">${num.inner}${num.tail}</span>` +
+      `<span class="fd${den.empty ? ' em' : ''}">${Hd(sl)}${Hd(o2)}${den.inner}${den.tail}</span></span>`;
   }
   function boxBody(stop) {
     const inner = seq(stop);
@@ -1715,6 +1741,15 @@ function render(s, cs, ce) {
   return { html, dead, boxClose };
 }
 
+function matchOpen(s, c) {
+  let d = 0;
+  for (let j = c; j >= 0; j--) {
+    const ch = s[j];
+    if (ch === ')' || ch === ']' || ch === '}') d++;
+    else if (ch === '(' || ch === '[' || ch === '{') { d--; if (d === 0) return j; }
+  }
+  return -1;
+}
 function matchClose(s, o) {
   let d = 0;
   for (let j = o; j < s.length; j++) {
@@ -1725,7 +1760,7 @@ function matchClose(s, o) {
   return -1;
 }
 
-const api = { render, matchClose, RAD_SVG, FN };
+const api = { render, matchClose, matchOpen, RAD_SVG, FN };
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 else root.LatticeLive = api;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -1755,6 +1790,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const PAL = { red: ['#c8443b', '#ff6e63'], blue: ['#2a6bd3', '#64a6ff'], green: ['#2c8845', '#56d283'], purple: ['#6b45c4', '#ae93ff'], orange: ['#d97212', '#ffa34a'], ink: ['#1b2230', '#e7ebf1'] };
 const ORDER = ['red', 'blue', 'green', 'purple', 'orange', 'ink'];
 const PREFIX = 'domos.v1.';
+const VERSION = '1.2';
 const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 const store = {
   get(k, d) { try { const v = localStorage.getItem(PREFIX + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -2647,6 +2683,7 @@ const ICON = {
   warn: '<svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>',
   play: '<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>',
   pause: '<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
+  trash: '<svg class="ic" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>',
   table: '<svg class="ic ticon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M12 4v16"/></svg>',
 };
 function isEmptyExpr(it) { return it && it.type === 'expr' && !it.text.trim(); }
@@ -3187,6 +3224,28 @@ function typeChar(el, c) {
     if (s === e && v[s] === c) { el.setSelectionRange(s + 1, s + 1); caretMoved(el); return true; }
     return false;
   }
+  if (c === '/') {
+    let j = s, N;
+    if (s !== e) { N = v.slice(s, e); j = s; }
+    else {
+      for (;;) {
+        if (j > 0 && v[j - 1] === ')') {
+          const o = LL.matchOpen(v, j - 1); if (o < 0) break;
+          j = o; const m = v.slice(0, j).match(BS_PREFIX); if (m) j -= m[0].length; continue;
+        }
+        if (j > 0 && /[A-Za-z0-9.πθτ_!'\u0370-\u03ff]/.test(v[j - 1])) { j--; continue; }
+        if (j > 0 && v[j - 1] === '^') { j--; continue; }
+        break;
+      }
+      N = v.slice(j, s);
+    }
+    const whole = N.startsWith('(') && LL.matchClose(N, 0) === N.length - 1;
+    const numTxt = !N ? '()' : whole ? N : '(' + N + ')';
+    el.setRangeText(numTxt + '/()', j, e, 'end');
+    const p = N ? j + numTxt.length + 2 : j + 1;
+    el.setSelectionRange(p, p);
+    el.dispatchEvent(new Event('input', { bubbles: true })); return true;
+  }
   if (c === '^') {
     const mid = v.slice(s, e);
     el.setRangeText('^(' + mid + ')', s, e, 'end');
@@ -3209,6 +3268,19 @@ function smartBackspace(el) {
   if (s === 0) return true;
   const info = LL.render(v, -1, -1), prev = v[s - 1];
   if (info.boxClose.has(s - 1) || ')]}'.includes(prev)) { el.setSelectionRange(s - 1, s - 1); caretMoved(el); return true; }
+  if (prev === '(') {
+    let o1 = -1, c1 = -1, o2 = -1;
+    if (v[s - 2] === '/' && v[s - 3] === ')') { c1 = s - 3; o1 = LL.matchOpen(v, c1); o2 = s - 1; }
+    else { const c = LL.matchClose(v, s - 1); if (c > 0 && v[c + 1] === '/' && v[c + 2] === '(') { o1 = s - 1; c1 = c; o2 = c + 2; } }
+    if (o1 >= 0) {
+      const c2 = LL.matchClose(v, o2);
+      const num = v.slice(o1 + 1, c1), den = c2 < 0 ? v.slice(o2 + 1) : v.slice(o2 + 1, c2);
+      const rest = c2 < 0 ? '' : v.slice(c2 + 1);
+      el.value = v.slice(0, o1) + num + den + rest;
+      const p = o1 + num.length; el.setSelectionRange(p, p);
+      return done();
+    }
+  }
   if (OPENERS[prev]) {
     let start = s - 1;
     if (prev === '(') { const m = v.slice(0, start).match(BS_PREFIX); if (m) start -= m[0].length; }
@@ -3351,10 +3423,15 @@ function renderGraphs() {
   $('#titleIn').value = G.title;
   const gl = $('#gList'); gl.innerHTML = '';
   const idx = graphsIndex();
+  if (!idx.length) gl.innerHTML = '<p class="note">No saved graphs yet.</p>';
   for (const e of idx) {
+    const row = h('div', { class: 'grow' });
     const b = h('button', { class: 'gitem' + (e.id === G.id ? ' cur' : '') }, `<span class="gt">${esc(e.title)}<span class="gm">${esc(e.first || '')}</span></span><span class="gd">${esc(dateStr(e.updated))}</span>`);
     b.addEventListener('click', () => { openGraph(e.id); closeDrawers(); });
-    gl.appendChild(b);
+    const del = h('button', { class: 'gdel', 'aria-label': `Delete ${e.title}` }, ICON.trash);
+    del.addEventListener('click', () => deleteGraph(e.id));
+    row.append(b, del);
+    gl.appendChild(row);
   }
   const ex = $('#exList'); ex.innerHTML = '';
   for (const [name, make] of EXAMPLES) {
@@ -3386,15 +3463,27 @@ $('#bDup').addEventListener('click', () => {
   saveNow(); const c = JSON.parse(JSON.stringify(serial(G))); c.id = nid(); c.title = (G.title || 'Untitled graph') + ' copy';
   setGraph(c); saveNow(); closeDrawers(); toast('Made a copy');
 });
-$('#bDel').addEventListener('click', e => {
-  const b = e.currentTarget;
-  if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Tap again to delete'; setTimeout(() => { b.dataset.armed = ''; b.textContent = 'Delete'; }, 3000); return; }
-  const title = G.title;
-  store.del('g.' + G.id);
-  const idx = graphsIndex().filter(x => x.id !== G.id); store.set('index', idx);
-  const next = idx[0] && store.get('g.' + idx[0].id);
-  setGraph(next || newGraph('Untitled graph')); saveNow(); closeDrawers(); toast(`Deleted “${title}”`);
-});
+function deleteGraph(id) {
+  if (id === G.id) saveNow();
+  const data = store.get('g.' + id), idx0 = graphsIndex(), entry = idx0.find(x => x.id === id);
+  if (!data) return;
+  const wasCurrent = id === G.id;
+  store.del('g.' + id);
+  const idx = idx0.filter(x => x.id !== id); store.set('index', idx);
+  if (wasCurrent) { const next = idx[0] && store.get('g.' + idx[0].id); setGraph(next || newGraph('Untitled graph')); if (!next) saveNow(); }
+  renderGraphs();
+  toast(`Deleted “${data.title || 'Untitled graph'}”`, {
+    label: 'Undo', fn: () => {
+      store.set('g.' + id, data);
+      const cur = graphsIndex().filter(x => x.id !== id);
+      cur.unshift(entry || { id, title: data.title, updated: data.updated, first: '' });
+      cur.sort((a, b) => b.updated - a.updated); store.set('index', cur);
+      if (wasCurrent) { saveNow(); setGraph(data); saveNow(); }
+      renderGraphs();
+    },
+  });
+}
+$('#bDel').addEventListener('click', () => { deleteGraph(G.id); closeDrawers(); });
 function renderSettings() {
   $$('#themeSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === prefs.theme));
   $$('#angSeg button').forEach(b => b.classList.toggle('on', (b.dataset.v === 'deg') === !!G.deg));
@@ -3402,6 +3491,7 @@ function renderSettings() {
   const f = v => String(Number(v.toPrecision(5)));
   $('#vXmin').value = f(IX(0)); $('#vXmax').value = f(IX(W)); $('#vYmin').value = f(IY(H)); $('#vYmax').value = f(IY(0));
   $('#bImg').hidden = inFrame;
+  $('#verNote').textContent = `Domos ${VERSION}`;
   $('#bInstall').hidden = !installEvt;
 }
 $('#bSettings').addEventListener('click', () => { renderSettings(); openDrawer($('#settings')); });
@@ -3442,7 +3532,18 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instal
 $('#bInstall').addEventListener('click', async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) { /* ignore */ } installEvt = null; renderSettings(); });
 
 let toastT = 0;
-function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
+function toast(msg, action) {
+  const t = $('#toast');
+  t.textContent = msg;
+  if (action) {
+    const b = h('button', { class: 'tact' }, esc(action.label));
+    b.addEventListener('click', () => { t.classList.remove('on'); action.fn(); });
+    t.appendChild(b);
+  }
+  t.classList.toggle('act', !!action);
+  t.classList.add('on'); clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('on'), action ? 5000 : 2600);
+}
 
 /* ================= header buttons ================= */
 $('#bAdd').addEventListener('pointerdown', e => e.preventDefault());
