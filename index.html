@@ -1789,7 +1789,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const PAL = { red: ['#c8443b', '#ff6e63'], blue: ['#2a6bd3', '#64a6ff'], green: ['#2c8845', '#56d283'], purple: ['#6b45c4', '#ae93ff'], orange: ['#d97212', '#ffa34a'], ink: ['#1b2230', '#e7ebf1'] };
 const ORDER = ['red', 'blue', 'green', 'purple', 'orange', 'ink'];
 const PREFIX = 'domos.v1.';
-const VERSION = '1.4';
+const VERSION = '1.5';
 const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 const store = {
   get(k, d) { try { const v = localStorage.getItem(PREFIX + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -3568,7 +3568,19 @@ saveNow();
 layout();
 resizeCanvas();
 if ('serviceWorker' in navigator && !inFrame && location.protocol === 'https:' && window.LATTICE_SW) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  const hadSW = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadSW || reloading) return;
+    reloading = true; saveNow();
+    try { sessionStorage.setItem('domos.updated', '1'); } catch (e) { /* ignore */ }
+    location.reload();
+  });
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+    const check = () => reg.update().catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+  }).catch(() => {});
+  try { if (sessionStorage.getItem('domos.updated')) { sessionStorage.removeItem('domos.updated'); setTimeout(() => toast(`Updated to Domos ${VERSION}`), 600); } } catch (e) { /* ignore */ }
 }
 })();
 
