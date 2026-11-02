@@ -137,6 +137,11 @@ svg.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-wid
 
 .ext { display: flex; flex-direction: column; gap: 6px; padding: 0 10px 10px 12px; font-size: 14px; }
 .ext:empty { display: none; }
+.val.tap { cursor: pointer; color: var(--ink); text-align: right; }
+.val.tap:active { background: var(--key2); }
+.val .fr { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-size: .85em; margin-left: .1em; line-height: 1.15; }
+.val .fr > .fn { border-bottom: 1.5px solid currentColor; padding: 0 .15em; }
+.val .fr > .fd { padding: 0 .15em; }
 .val { align-self: flex-end; font-family: var(--math); font-size: 19px; background: var(--gutter); border: 1px solid var(--line); border-radius: 8px; padding: 2px 10px; max-width: 100%; overflow-x: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .err { display: flex; gap: 8px; align-items: flex-start; color: var(--danger); line-height: 1.35; }
 .err svg { flex: none; width: 16px; height: 16px; margin-top: 1px; stroke: currentColor; fill: none; stroke-width: 2; }
@@ -1397,7 +1402,7 @@ function analyze(items, opts) {
       if (def.kind === 'var') {
         const v = M.getVar(def.name);
         if (numLiteral(st.terms[1]) !== null && isNum(v)) return { kind: 'slider', name: def.name, value: v };
-        return { kind: 'var', name: def.name, value: fmtNum(v) };
+        return { kind: 'var', name: def.name, value: fmtNum(v), raw: v };
       }
       const fd = M.getFn(def.name);
       if (def.params.length === 1 && def.params[0] === 'x' && fd.uses.size === 0) {
@@ -1789,7 +1794,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const PAL = { red: ['#c8443b', '#ff6e63'], blue: ['#2a6bd3', '#64a6ff'], green: ['#2c8845', '#56d283'], purple: ['#6b45c4', '#ae93ff'], orange: ['#d97212', '#ffa34a'], ink: ['#1b2230', '#e7ebf1'] };
 const ORDER = ['red', 'blue', 'green', 'purple', 'orange', 'ink'];
 const PREFIX = 'domos.v1.';
-const VERSION = '1.5';
+const VERSION = '1.6';
 const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 const store = {
   get(k, d) { try { const v = localStorage.getItem(PREFIX + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -2878,7 +2883,13 @@ function updateExt(r, res) {
   if (res.domainVar && r.ext.contains(document.activeElement)) return;
   r.sig = sig; r.kind = res.kind;
   let html = '';
-  if (res.kind === 'value' || res.kind === 'var') html = `<div class="val">= ${esc(res.value)}</div>`;
+  if (res.kind === 'value' || res.kind === 'var') {
+    const fr = typeof res.raw === 'number' ? toFraction(res.raw) : null;
+    if (fr) {
+      const showFr = !!it.asFrac;
+      html = `<button class="val tap" aria-label="${showFr ? 'Show as decimal' : 'Show as fraction'}">= ${showFr ? fracHTML(fr) : esc(res.value)}</button>`;
+    } else html = `<div class="val">= ${esc(res.value)}</div>`;
+  }
   else if (res.kind === 'error') {
     html = `<div class="err">${ICON.warn}<span>${esc(res.error)}</span></div>`;
     if (res.missing && res.missing.length) html += `<div class="chips">${res.missing.map(n => `<button class="chip" data-v="${esc(n)}">Add slider: ${LM.nameHTML(n)}</button>`).join('')}${res.missing.length > 1 ? '<button class="chip" data-all="1">Add all</button>' : ''}</div>`;
@@ -2891,6 +2902,11 @@ function updateExt(r, res) {
     html += `<div class="dom"><input class="dmin" aria-label="Start" value="${esc(dm.min ?? d0)}"><span>≤ <i>${res.domainVar}</i> ≤</span><input class="dmax" aria-label="End" value="${esc(dm.max ?? d1)}"></div>`;
   }
   r.ext.innerHTML = html;
+  const tapVal = $('.val.tap', r.ext);
+  if (tapVal) {
+    tapVal.addEventListener('pointerdown', e => e.preventDefault());
+    tapVal.addEventListener('click', () => { it.asFrac = !it.asFrac; r.sig = null; updateRow(r); commit(); });
+  }
   $$('.chip', r.ext).forEach(b => b.addEventListener('click', () => {
     const names = b.dataset.all ? res.missing : [b.dataset.v];
     let after = it.id;
@@ -2902,6 +2918,25 @@ function updateExt(r, res) {
     inp.addEventListener('input', () => { it.domain = it.domain || {}; it.domain[inp.classList.contains('dmin') ? 'min' : 'max'] = inp.value; reanalyzeSoon(); commitSoon(); });
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } });
   });
+}
+// Best fraction for a decimal (continued fractions), only when it matches to ~10 digits.
+function toFraction(x) {
+  if (!isFinite(x) || Number.isInteger(x) || Math.abs(x) > 1e9) return null;
+  const sign = x < 0 ? -1 : 1, a0 = Math.abs(x);
+  let h0 = 0, h1 = 1, k0 = 1, k1 = 0, v = a0;
+  for (let i = 0; i < 40; i++) {
+    const a = Math.floor(v);
+    const h2 = a * h1 + h0, k2 = a * k1 + k0;
+    if (k2 > 100000) break;
+    h0 = h1; h1 = h2; k0 = k1; k1 = k2;
+    if (Math.abs(a0 - h1 / k1) <= 1e-13 * Math.max(1, a0)) return k1 === 1 ? null : { n: sign * h1, d: k1 };
+    const f = v - a; if (f < 1e-12) break; v = 1 / f;
+  }
+  return null;
+}
+function fracHTML(f) {
+  const neg = f.n < 0;
+  return `${neg ? '−' : ''}<span class="fr"><span class="fn">${Math.abs(f.n)}</span><span class="fd">${f.d}</span></span>`;
 }
 function numOf(s, d) {
   try { const res = LM.analyze([{ id: 'n', type: 'expr', text: String(s) }], {}).results.get('n'); return res && res.kind === 'value' && isFinite(res.raw) ? res.raw : d; }

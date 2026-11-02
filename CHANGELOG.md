@@ -2,6 +2,33 @@
 
 All notable changes to Domos. Newest first.
 
+## 1.6 — 2026-11-02
+
+### Added
+- Tap a decimal answer to see it as a fraction, like 0.375 → 3/8. Tap again to switch back. Each line remembers which way you left it.
+
+## 1.5 — 2026-10-31
+
+### Fixed
+- Updates now show up the next time you open Domos. It checks for a new version whenever it opens, reloads itself once, and says "Updated to Domos 1.5". It still works offline using the last version it saved.
+
+## 1.4 — 2026-10-31
+
+### Changed
+- Each graph in **Saved** has an × next to its name. One tap deletes it, with **Undo** in case it was a mistake.
+
+### Removed
+- The separate Delete button and its "tap again to delete" step.
+
+## 1.3 — 2026-10-31
+
+### Changed
+- Domos opens on a blank graph the first time instead of the Welcome graph.
+- Blank graphs aren't added to **Saved** until you type something.
+
+### Removed
+- The Welcome intro graph and its entry in Examples.
+
 ## 1.2 — 2026-10-30
 
 ### Added
